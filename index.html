@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DayForge — Your Personalized Daily Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ===== DESIGN TOKENS ===== */
+    :root {
+      --color-primary: #0F172A;
+      --color-on-primary: #FFFFFF;
+      --color-secondary: #3B82F6;
+      --color-on-secondary: #FFFFFF;
+      --color-accent: #10B981;
+      --color-on-accent: #FFFFFF;
+      --color-bg: #F8FAFC;
+      --color-fg: #0F172A;
+      --color-card: #FFFFFF;
+      --color-card-fg: #0F172A;
+      --color-muted: #F1F5F9;
+      --color-muted-fg: #64748B;
+      --color-border: #E2E8F0;
+      --color-ring: #3B82F6;
+      --color-destructive: #EF4444;
+      --color-on-destructive: #FFFFFF;
+      --color-warning: #F59E0B;
+      --color-hero-gradient-start: #0F172A;
+      --color-hero-gradient-end: #1E293B;
+      --color-priority-high-bg: #FEE2E2;
+      --color-priority-high-fg: #991B1B;
+      --color-priority-med-bg: #FEF3C7;
+      --color-priority-med-fg: #92400E;
+      --color-priority-low-bg: #D1FAE5;
+      --color-priority-low-fg: #065F46;
+      --color-badge-blue-bg: #DBEAFE;
+      --color-badge-blue-fg: #1E40AF;
+      --font-heading: 'Space Grotesk', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --radius: 14px;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+      --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.12);
+      --transition: 180ms ease;
+    }
+
+    ::selection {
+      background-color: var(--color-secondary);
+      color: var(--color-on-secondary);
+    }
+
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-body);
+      background: var(--color-bg);
+      color: var(--color-fg);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); line-height: 1.25; font-weight: 700; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: var(--font-body); cursor: pointer; border: none; background: none; }
+    img { max-width: 100%; display: block; }
+
+    /* ===== LAYOUT ===== */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    .app-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      background: var(--color-primary);
+      color: var(--color-on-primary);
+      padding: 28px 20px;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .sidebar-logo {
+      font-family: var(--font-heading);
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar-logo svg { width: 28px; height: 28px; color: var(--color-accent); }
+
+    .sidebar-tagline {
+      font-size: 0.8rem;
+      opacity: 0.6;
+      margin-bottom: 32px;
+      padding-left: 38px;
+    }
+
+    .nav-section { margin-bottom: 28px; }
+    .nav-section-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.5;
+      margin-bottom: 10px;
+      padding-left: 12px;
+      font-weight: 600;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 0.92rem;
+      font-weight: 500;
+      opacity: 0.75;
+      transition: var(--transition);
+      margin-bottom: 2px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: inherit;
+      width: 100%;
+      text-align: left;
+    }
+
+    .nav-item:hover, .nav-item:focus { opacity: 1; background: rgba(255,255,255,0.08); outline: none; }
+    .nav-item.active { opacity: 1; background: rgba(255,255,255,0.12); }
+    .nav-item svg { width: 18px; height: 18px; opacity: 0.9; }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      font-size: 0.8rem;
+      opacity: 0.5;
+      text-align: center;
+    }
+
+    .mobile-toggle {
+      display: none;
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 200;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      color: var(--color-on-primary);
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-md);
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main {
+      padding: 32px 36px;
+      min-height: 100vh;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .page-header h1 {
+      font-size: 1.7rem;
+      font-weight: 700;
+    }
+
+    .page-header p {
+      color: var(--color-muted-fg);
+      font-size: 0.95rem;
+    }
+
+    .date-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--color-muted-fg);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--color-secondary);
+      color: var(--color-on-secondary);
+    }
+    .btn-primary:hover, .btn-primary:focus { filter: brightness(1.1); transform: translateY(-1px); box-shadow: var(--shadow-md); outline: none; }
+
+    .btn-accent {
+      background: var(--color-accent);
+      color: var(--color-on-accent);
+    }
+    .btn-accent:hover, .btn-accent:focus { filter: brightness(1.1); transform: translateY(-1px); box-shadow: var(--shadow-md); outline: none; }
+
+    .btn-outline {
+      background: var(--color-card);
+      color: var(--color-fg);
+      border: 2px solid var(--color-border);
+    }
+    .btn-outline:hover, .btn-outline:focus { border-color: var(--color-secondary); outline: none; }
+
+    .btn-sm { padding: 8px 16px; font-size: 0.85rem; }
+
+    /* ===== CARDS ===== */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 24px;
+      transition: var(--transition);
+    }
+    .stat-card:hover { box-shadow: var(--shadow-md); }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--color-muted-fg);
+      font-weight: 500;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stat-value {
+      font-family: var(--font-heading);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+
+    .stat-delta {
+      font-size: 0.8rem;
+      margin-top: 6px;
+      font-weight: 600;
+    }
+    .stat-delta.positive { color: var(--color-accent); }
+    .stat-delta.negative { color: var(--color-destructive); }
+
+    .panel {
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .panel-header h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+    }
+
+    /* ===== INPUTS ===== */
+    .input-group { margin-bottom: 16px; }
+    .input-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--color-fg);
+    }
+    .input-group input, .input-group textarea, .input-group select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid var(--color-border);
+      border-radius: 10px;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      background: var(--color-bg);
+      color: var(--color-fg);
+      transition: var(--transition);
+    }
+    .input-group input:focus, .input-group textarea:focus, .input-group select:focus {
+      border-color: var(--color-secondary);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    .input-group textarea { resize: vertical; min-height: 80px; }
+
+    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* ===== LIST ITEMS ===== */
+    .item-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .list-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      transition: var(--transition);
+    }
+    .list-item:hover { border-color: var(--color-secondary); box-shadow: var(--shadow-sm); }
+
+    .checkbox {
+      width: 22px;
+      height: 22px;
+      border: 2px solid var(--color-border);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      flex-shrink: 0;
+    }
+    .checkbox:hover { border-color: var(--color-secondary); }
+    .checkbox.checked {
+      background: var(--color-accent);
+      border-color: var(--color-accent);
+      color: var(--color-on-accent);
+    }
+    .checkbox.checked svg { display: block; }
+    .checkbox svg { display: none; width: 14px; height: 14px; }
+
+    .item-content { flex: 1; min-width: 0; }
+    .item-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 2px;
+    }
+    .item-title.done { text-decoration: line-through; opacity: 0.5; }
+    .item-meta {
+      font-size: 0.8rem;
+      color: var(--color-muted-fg);
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .priority-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 50px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .priority-high { background: var(--color-priority-high-bg); color: var(--color-priority-high-fg); }
+    .priority-medium { background: var(--color-priority-med-bg); color: var(--color-priority-med-fg); }
+    .priority-low { background: var(--color-priority-low-bg); color: var(--color-priority-low-fg); }
+
+    .item-actions { display: flex; gap: 4px; opacity: 0; transition: var(--transition); }
+    .list-item:hover .item-actions { opacity: 1; }
+    .item-actions button {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--color-muted-fg);
+      transition: var(--transition);
+    }
+    .item-actions button:hover { background: var(--color-muted); color: var(--color-destructive); }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--color-muted-fg);
+    }
+    .empty-state svg { width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.3; }
+
+    /* ===== DAILY PLAN ===== */
+    .plan-timeline {
+      position: relative;
+      padding-left: 32px;
+    }
+    .plan-timeline::before {
+      content: '';
+      position: absolute;
+      left: 10px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--color-border);
+    }
+
+    .plan-slot {
+      position: relative;
+      margin-bottom: 16px;
+      padding: 16px 20px;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      transition: var(--transition);
+    }
+    .plan-slot:hover { border-color: var(--color-secondary); }
+
+    .plan-slot::before {
+      content: '';
+      position: absolute;
+      left: -26px;
+      top: 22px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--color-secondary);
+      border: 2px solid var(--color-card);
+    }
+
+    .plan-time {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--color-secondary);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .plan-title {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 4px;
+    }
+
+    .plan-desc {
+      font-size: 0.9rem;
+      color: var(--color-muted-fg);
+    }
+
+    .plan-slot.habit { border-left: 4px solid var(--color-accent); }
+    .plan-slot.task { border-left: 4px solid var(--color-secondary); }
+    .plan-slot.goal { border-left: 4px solid var(--color-warning); }
+    .plan-slot.break { border-left: 4px solid var(--color-muted-fg); opacity: 0.8; }
+
+    .plan-generate-area {
+      text-align: center;
+      padding: 48px 20px;
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-hero-gradient-end) 100%);
+      border-radius: var(--radius);
+      color: var(--color-on-primary);
+      margin-bottom: 28px;
+    }
+
+    .plan-generate-area h2 { font-size: 1.5rem; margin-bottom: 10px; }
+    .plan-generate-area p { opacity: 0.8; margin-bottom: 20px; max-width: 480px; margin-left: auto; margin-right: auto; }
+
+    /* ===== TABS ===== */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--color-border);
+      padding-bottom: 0;
+    }
+    .tab {
+      padding: 10px 18px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--color-muted-fg);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: var(--transition);
+      cursor: pointer;
+      background: none;
+    }
+    .tab:hover, .tab:focus { color: var(--color-fg); outline: none; }
+    .tab.active { color: var(--color-secondary); border-bottom-color: var(--color-secondary); }
+
+    /* ===== PROGRESS BAR ===== */
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--color-border);
+      border-radius: 50px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--color-accent);
+      border-radius: 50px;
+      transition: width 500ms ease;
+    }
+
+    /* ===== HABIT TRACKER ===== */
+    .habit-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .habit-day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      color: var(--color-muted-fg);
+    }
+    .habit-day.done { background: var(--color-accent); color: var(--color-on-accent); border-color: var(--color-accent); }
+    .habit-day.today { border-color: var(--color-secondary); color: var(--color-secondary); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .app-layout { grid-template-columns: 1fr; }
+      .sidebar {
+        position: fixed;
+        left: 0; top: 0; bottom: 0;
+        width: 260px;
+        z-index: 150;
+        transform: translateX(-100%);
+        transition: transform 300ms ease;
+      }
+      .sidebar.open { transform: translateX(0); }
+      .main { padding: 72px 20px 32px; }
+      .mobile-toggle { display: flex; }
+      .card-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      .card-grid { grid-template-columns: 1fr; }
+      .input-row { grid-template-columns: 1fr; }
+      .page-header h1 { font-size: 1.4rem; }
+      .plan-timeline { padding-left: 24px; }
+      .plan-slot::before { left: -20px; }
+    }
+
+    /* ===== ACCESSIBILITY ===== */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      html { scroll-behavior: auto; }
+    }
+
+    .hidden { display: none !important; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+  </style>
+</head>
+<body>
+
+  <button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+
+  <div class="app-layout">
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        DayForge
+      </div>
+      <div class="sidebar-tagline">Plan your day. Own your life.</div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Plan</div>
+        <button class="nav-item active" onclick="showView('dashboard')" data-view="dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Today's Plan
+        </button>
+        <button class="nav-item" onclick="showView('tasks')" data-view="tasks">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Tasks
+        </button>
+        <button class="nav-item" onclick="showView('habits')" data-view="habits">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Habits
+        </button>
+        <button class="nav-item" onclick="showView('goals')" data-view="goals">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          Goals
+        </button>
+        <button class="nav-item" onclick="showView('notes')" data-view="notes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Notes
+        </button>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Actions</div>
+        <button class="nav-item" onclick="generateDailyPlan()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Generate Plan
+        </button>
+        <button class="nav-item" onclick="exportData()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export Data
+        </button>
+      </div>
+
+      <div class="sidebar-footer">
+        DayForge v1.0<br>Your data stays local
+      </div>
+    </aside>
+
+    <!-- Overlay for mobile sidebar -->
+    <div id="sidebarOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:140;" onclick="toggleSidebar()"></div>
+
+    <!-- ===== MAIN ===== -->
+    <main class="main" id="mainContent">
+
+      <!-- DASHBOARD VIEW -->
+      <div id="view-dashboard">
+        <div class="page-header">
+          <div>
+            <h1>Today's Plan</h1>
+            <p id="todaySubtitle">Your personalized daily schedule</p>
+          </div>
+          <span class="date-badge" id="todayDate"></span>
+        </div>
+
+        <div class="card-grid">
+          <div class="stat-card">
+            <div class="stat-label">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              Tasks Done
+            </div>
+            <div class="stat-value" id="statTasks">0/0</div>
+            <div class="progress-bar"><div class="progress-fill" id="taskProgress" style="width:0%"></div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              Habits Today
+            </div>
+            <div class="stat-value" id="statHabits">0/0</div>
+            <div class="progress-bar"><div class="progress-fill" id="habitProgress" style="width:0%"></div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+              Active Goals
+            </div>
+            <div class="stat-value" id="statGoals">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Notes
+            </div>
+            <div class="stat-value" id="statNotes">0</div>
+          </div>
+        </div>
+
+        <div class="plan-generate-area" id="generateArea">
+          <h2>Ready to plan your day?</h2>
+          <p>DayForge will intelligently combine your goals, tasks, habits and notes into a personalized daily schedule.</p>
+          <button class="btn btn-accent" onclick="generateDailyPlan()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Generate My Daily Plan
+          </button>
+        </div>
+
+        <div id="dailyPlanContainer" class="hidden">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Your Schedule</h3>
+              <button class="btn btn-sm btn-outline" onclick="generateDailyPlan()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                Regenerate
+              </button>
+            </div>
+            <div class="plan-timeline" id="planTimeline"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TASKS VIEW -->
+      <div id="view-tasks" class="hidden">
+        <div class="page-header">
+          <div>
+            <h1>Tasks</h1>
+            <p>Manage what you need to get done</p>
+          </div>
+          <button class="btn btn-primary" onclick="openTaskModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Task
+          </button>
+        </div>
+
+        <div class="tabs">
+          <button class="tab active" onclick="filterTasks('all', this)">All</button>
+          <button class="tab" onclick="filterTasks('today', this)">Today</button>
+          <button class="tab" onclick="filterTasks('upcoming', this)">Upcoming</button>
+          <button class="tab" onclick="filterTasks('done', this)">Completed</button>
+        </div>
+
+        <div class="item-list" id="taskList"></div>
+      </div>
+
+      <!-- HABITS VIEW -->
+      <div id="view-habits" class="hidden">
+        <div class="page-header">
+          <div>
+            <h1>Habits</h1>
+            <p>Build consistency, one day at a time</p>
+          </div>
+          <button class="btn btn-primary" onclick="openHabitModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Habit
+          </button>
+        </div>
+
+        <div class="item-list" id="habitList"></div>
+      </div>
+
+      <!-- GOALS VIEW -->
+      <div id="view-goals" class="hidden">
+        <div class="page-header">
+          <div>
+            <h1>Goals</h1>
+            <p>Set your direction and track progress</p>
+          </div>
+          <button class="btn btn-primary" onclick="openGoalModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Goal
+          </button>
+        </div>
+
+        <div class="item-list" id="goalList"></div>
+      </div>
+
+      <!-- NOTES VIEW -->
+      <div id="view-notes" class="hidden">
+        <div class="page-header">
+          <div>
+            <h1>Notes</h1>
+            <p>Capture ideas, reflections and reminders</p>
+          </div>
+          <button class="btn btn-primary" onclick="openNoteModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Note
+          </button>
+        </div>
+
+        <div class="item-list" id="noteList"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ===== MODALS ===== -->
+  <div class="modal-overlay hidden" id="modalOverlay" style="position:fixed;inset:0;background:rgba(15,23,42,0.5);backdrop-filter:blur(3px);z-index:250;" onclick="closeAllModals()"></div>
+
+  <!-- Task Modal -->
+  <div class="panel hidden" id="taskModal" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:260;max-width:480px;width:92%;box-shadow:var(--shadow-lg);">
+    <div class="panel-header"><h3 id="taskModalTitle">New Task</h3></div>
+    <div class="input-group"><label>Task Name</label><input type="text" id="taskName" placeholder="What needs to be done?"></div>
+    <div class="input-row">
+      <div class="input-group"><label>Priority</label><select id="taskPriority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></div>
+      <div class="input-group"><label>Due Date</label><input type="date" id="taskDue"></div>
+    </div>
+    <div class="input-group"><label>Estimated Time (minutes)</label><input type="number" id="taskDuration" value="30" min="5" step="5"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+      <button class="btn btn-outline btn-sm" onclick="closeAllModals()">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveTask()">Save Task</button>
+    </div>
+  </div>
+
+  <!-- Habit Modal -->
+  <div class="panel hidden" id="habitModal" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:260;max-width:480px;width:92%;box-shadow:var(--shadow-lg);">
+    <div class="panel-header"><h3 id="habitModalTitle">New Habit</h3></div>
+    <div class="input-group"><label>Habit Name</label><input type="text" id="habitName" placeholder="e.g. Morning Meditation"></div>
+    <div class="input-group"><label>Frequency</label><select id="habitFreq"><option value="daily" selected>Daily</option><option value="weekdays">Weekdays</option><option value="weekends">Weekends</option></select></div>
+    <div class="input-group"><label>Preferred Time</label><select id="habitTime"><option value="morning">Morning</option><option value="afternoon">Afternoon</option><option value="evening" selected>Evening</option></select></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+      <button class="btn btn-outline btn-sm" onclick="closeAllModals()">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveHabit()">Save Habit</button>
+    </div>
+  </div>
+
+  <!-- Goal Modal -->
+  <div class="panel hidden" id="goalModal" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:260;max-width:480px;width:92%;box-shadow:var(--shadow-lg);">
+    <div class="panel-header"><h3 id="goalModalTitle">New Goal</h3></div>
+    <div class="input-group"><label>Goal Title</label><input type="text" id="goalTitle" placeholder="What do you want to achieve?"></div>
+    <div class="input-group"><label>Description</label><textarea id="goalDesc" placeholder="Why is this important to you?"></textarea></div>
+    <div class="input-row">
+      <div class="input-group"><label>Target Date</label><input type="date" id="goalDeadline"></div>
+      <div class="input-group"><label>Category</label><select id="goalCategory"><option>Personal</option><option>Career</option><option>Health</option><option>Learning</option><option>Finance</option></select></div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+      <button class="btn btn-outline btn-sm" onclick="closeAllModals()">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveGoal()">Save Goal</button>
+    </div>
+  </div>
+
+  <!-- Note Modal -->
+  <div class="panel hidden" id="noteModal" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:260;max-width:520px;width:92%;box-shadow:var(--shadow-lg);">
+    <div class="panel-header"><h3 id="noteModalTitle">New Note</h3></div>
+    <div class="input-group"><label>Title</label><input type="text" id="noteTitle" placeholder="Note title"></div>
+    <div class="input-group"><label>Content</label><textarea id="noteContent" rows="5" placeholder="Write your thoughts here..."></textarea></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+      <button class="btn btn-outline btn-sm" onclick="closeAllModals()">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveNote()">Save Note</button>
+    </div>
+  </div>
+
+  <script>
+    // ===== DATA =====
+    let tasks = JSON.parse(localStorage.getItem('df_tasks')) || [
+      { id: 1, title: "Review quarterly report", priority: "high", due: todayISO(), duration: 60, done: false },
+      { id: 2, title: "Reply to client emails", priority: "medium", due: todayISO(), duration: 30, done: false },
+      { id: 3, title: "Prepare presentation slides", priority: "high", due: offsetDays(1), duration: 90, done: false },
+      { id: 4, title: "Update project documentation", priority: "low", due: offsetDays(2), duration: 45, done: false },
+      { id: 5, title: "Team standup meeting", priority: "medium", due: todayISO(), duration: 30, done: true },
+    ];
+
+    let habits = JSON.parse(localStorage.getItem('df_habits')) || [
+      { id: 1, name: "Morning Meditation", freq: "daily", time: "morning", streak: 12, days: [1,1,1,1,1,0,1] },
+      { id: 2, name: "Read 20 Pages", freq: "daily", time: "evening", streak: 8, days: [1,0,1,1,1,1,1] },
+      { id: 3, name: "Drink 2L Water", freq: "daily", time: "morning", streak: 21, days: [1,1,1,1,1,1,1] },
+      { id: 4, name: "Evening Walk", freq: "weekdays", time: "evening", streak: 5, days: [1,1,1,1,1,0,0] },
+    ];
+
+    let goals = JSON.parse(localStorage.getItem('df_goals')) || [
+      { id: 1, title: "Launch side project", desc: "Build and ship a small SaaS product by end of quarter", deadline: offsetDays(45), category: "Career" },
+      { id: 2, title: "Run a half marathon", desc: "Train consistently and complete a half marathon under 2 hours", deadline: offsetDays(120), category: "Health" },
+      { id: 3, title: "Learn Spanish", desc: "Achieve conversational fluency through daily practice", deadline: offsetDays(180), category: "Learning" },
+    ];
+
+    let notes = JSON.parse(localStorage.getItem('df_notes')) || [
+      { id: 1, title: "App Ideas", content: "- Habit tracker with AI insights\n- Local-first note app\n- Focus timer with ambient sounds", created: todayISO() },
+      { id: 2, title: "Weekly Reflection", content: "This week felt productive. I completed 3 major tasks and maintained my morning routine. Need to improve sleep schedule.", created: offsetDays(-2) },
+    ];
+
+    let currentView = 'dashboard';
+    let currentTaskFilter = 'all';
+    let editingId = null;
+    let editingType = null;
+
+    // ===== HELPERS =====
+    function todayISO() { return new Date().toISOString().split('T')[0]; }
+    function offsetDays(n) { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().split('T')[0]; }
+    function formatDate(d) { return new Date(d).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); }
+    function generateId() { return Date.now() + Math.random().toString(36).substr(2, 5); }
+
+    function saveAll() {
+      localStorage.setItem('df_tasks', JSON.stringify(tasks));
+      localStorage.setItem('df_habits', JSON.stringify(habits));
+      localStorage.setItem('df_goals', JSON.stringify(goals));
+      localStorage.setItem('df_notes', JSON.stringify(notes));
+    }
+
+    // ===== NAVIGATION =====
+    function showView(view) {
+      currentView = view;
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      document.querySelector(`.nav-item[data-view="${view}"]`)?.classList.add('active');
+
+      ['dashboard', 'tasks', 'habits', 'goals', 'notes'].forEach(v => {
+        document.getElementById(`view-${v}`).classList.toggle('hidden', v !== view);
+      });
+
+      if (view === 'tasks') renderTasks();
+      if (view === 'habits') renderHabits();
+      if (view === 'goals') renderGoals();
+      if (view === 'notes') renderNotes();
+      if (view === 'dashboard') updateStats();
+
+      // Close sidebar on mobile
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebarOverlay').style.display = 'none';
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      const isOpen = sidebar.classList.contains('open');
+      sidebar.classList.toggle('open', !isOpen);
+      overlay.style.display = isOpen ? 'none' : 'block';
+    }
+
+    // ===== STATS =====
+    function updateStats() {
+      const totalTasks = tasks.length;
+      const doneTasks = tasks.filter(t => t.done).length;
+      const todayHabits = habits.length;
+      const doneHabits = habits.filter(h => h.days[h.days.length - 1]).length;
+
+      document.getElementById('statTasks').textContent = `${doneTasks}/${totalTasks}`;
+      document.getElementById('taskProgress').style.width = totalTasks ? `${(doneTasks / totalTasks) * 100}%` : '0%';
+      document.getElementById('statHabits').textContent = `${doneHabits}/${todayHabits}`;
+      document.getElementById('habitProgress').style.width = todayHabits ? `${(doneHabits / todayHabits) * 100}%` : '0%';
+      document.getElementById('statGoals').textContent = goals.length;
+      document.getElementById('statNotes').textContent = notes.length;
+      document.getElementById('todayDate').textContent = formatDate(todayISO());
+      document.getElementById('todaySubtitle').textContent = `You have ${tasks.filter(t => !t.done && t.due <= todayISO()).length} tasks and ${habits.length} habits scheduled for today.`;
+    }
+
+    // ===== TASKS =====
+    function renderTasks() {
+      const list = document.getElementById('taskList');
+      let filtered = tasks;
+      const today = todayISO();
+
+      if (currentTaskFilter === 'today') filtered = tasks.filter(t => t.due === today && !t.done);
+      else if (currentTaskFilter === 'upcoming') filtered = tasks.filter(t => t.due > today && !t.done);
+      else if (currentTaskFilter === 'done') filtered = tasks.filter(t => t.done);
+
+      if (filtered.length === 0) {
+        list.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><p>No tasks found.</p></div>`;
+        return;
+      }
+
+      list.innerHTML = filtered.map(t => `
+        <div class="list-item">
+          <div class="checkbox ${t.done ? 'checked' : ''}" onclick="toggleTask('${t.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="item-content">
+            <div class="item-title ${t.done ? 'done' : ''}">${t.title}</div>
+            <div class="item-meta">
+              <span class="priority-badge priority-${t.priority}">${t.priority}</span>
+              <span>Due ${formatDate(t.due)}</span>
+              <span>${t.duration} min</span>
+            </div>
+          </div>
+          <div class="item-actions">
+            <button onclick="editTask('${t.id}')" aria-label="Edit task">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button onclick="deleteTask('${t.id}')" aria-label="Delete task">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterTasks(filter, btn) {
+      currentTaskFilter = filter;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      renderTasks();
+    }
+
+    function toggleTask(id) {
+      const t = tasks.find(x => x.id == id);
+      if (t) { t.done = !t.done; saveAll(); renderTasks(); updateStats(); }
+    }
+
+    function deleteTask(id) { tasks = tasks.filter(t => t.id != id); saveAll(); renderTasks(); updateStats(); }
+
+    function openTaskModal(id = null) {
+      editingId = id;
+      editingType = 'task';
+      document.getElementById('taskModalTitle').textContent = id ? 'Edit Task' : 'New Task';
+      if (id) {
+        const t = tasks.find(x => x.id == id);
+        document.getElementById('taskName').value = t.title;
+        document.getElementById('taskPriority').value = t.priority;
+        document.getElementById('taskDue').value = t.due;
+        document.getElementById('taskDuration').value = t.duration;
+      } else {
+        document.getElementById('taskName').value = '';
+        document.getElementById('taskPriority').value = 'medium';
+        document.getElementById('taskDue').value = todayISO();
+        document.getElementById('taskDuration').value = 30;
+      }
+      showModal('taskModal');
+    }
+
+    function saveTask() {
+      const title = document.getElementById('taskName').value.trim();
+      if (!title) return;
+      const data = {
+        id: editingId || generateId(),
+        title, priority: document.getElementById('taskPriority').value,
+        due: document.getElementById('taskDue').value || todayISO(),
+        duration: parseInt(document.getElementById('taskDuration').value) || 30,
+        done: editingId ? tasks.find(t => t.id == editingId)?.done || false : false
+      };
+      if (editingId) { const i = tasks.findIndex(t => t.id == editingId); if (i >= 0) tasks[i] = data; }
+      else tasks.push(data);
+      saveAll(); closeAllModals(); renderTasks(); updateStats();
+    }
+
+    function editTask(id) { openTaskModal(id); }
+
+    // ===== HABITS =====
+    function renderHabits() {
+      const list = document.getElementById('habitList');
+      if (habits.length === 0) {
+        list.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><p>No habits yet. Start building one!</p></div>`;
+        return;
+      }
+      list.innerHTML = habits.map(h => {
+        const dayLabels = ['M','T','W','T','F','S','S'];
+        const todayIndex = (new Date().getDay() + 6) % 7;
+        return `
+        <div class="list-item" style="flex-direction:column;align-items:stretch;gap:12px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="checkbox ${h.days[todayIndex] ? 'checked' : ''}" onclick="toggleHabit('${h.id}')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="item-content">
+              <div class="item-title">${h.name}</div>
+              <div class="item-meta"><span>${h.freq}</span><span>${h.time}</span><span style="color:var(--color-accent);font-weight:600;">${h.streak} day streak</span></div>
+            </div>
+            <div class="item-actions" style="opacity:1;">
+              <button onclick="deleteHabit('${h.id}')" aria-label="Delete habit">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="habit-grid">
+            ${h.days.map((d, i) => `<div class="habit-day ${d ? 'done' : ''} ${i === todayIndex ? 'today' : ''}">${dayLabels[i]}</div>`).join('')}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function toggleHabit(id) {
+      const h = habits.find(x => x.id == id);
+      if (!h) return;
+      const todayIndex = (new Date().getDay() + 6) % 7;
+      h.days[todayIndex] = h.days[todayIndex] ? 0 : 1;
+      h.streak = h.days[todayIndex] ? h.streak + 1 : Math.max(0, h.streak - 1);
+      saveAll(); renderHabits(); updateStats();
+    }
+
+    function deleteHabit(id) { habits = habits.filter(h => h.id != id); saveAll(); renderHabits(); updateStats(); }
+
+    function openHabitModal() {
+      editingType = 'habit';
+      document.getElementById('habitModalTitle').textContent = 'New Habit';
+      document.getElementById('habitName').value = '';
+      document.getElementById('habitFreq').value = 'daily';
+      document.getElementById('habitTime').value = 'morning';
+      showModal('habitModal');
+    }
+
+    function saveHabit() {
+      const name = document.getElementById('habitName').value.trim();
+      if (!name) return;
+      habits.push({
+        id: generateId(), name,
+        freq: document.getElementById('habitFreq').value,
+        time: document.getElementById('habitTime').value,
+        streak: 0, days: [0,0,0,0,0,0,0]
+      });
+      saveAll(); closeAllModals(); renderHabits(); updateStats();
+    }
+
+    // ===== GOALS =====
+    function renderGoals() {
+      const list = document.getElementById('goalList');
+      if (goals.length === 0) {
+        list.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg><p>No goals set yet. Dream big!</p></div>`;
+        return;
+      }
+      list.innerHTML = goals.map(g => {
+        const daysLeft = Math.ceil((new Date(g.deadline) - new Date()) / (1000 * 60 * 60 * 24));
+        return `
+        <div class="list-item">
+          <div class="item-content">
+            <div class="item-title">${g.title}</div>
+            <div class="item-meta">
+              <span class="priority-badge" style="background:var(--color-badge-blue-bg);color:var(--color-badge-blue-fg);">${g.category}</span>
+              <span>${daysLeft > 0 ? daysLeft + ' days left' : 'Overdue'}</span>
+            </div>
+            <div style="font-size:0.85rem;color:var(--color-muted-fg);margin-top:4px;">${g.desc}</div>
+          </div>
+          <div class="item-actions" style="opacity:1;">
+            <button onclick="deleteGoal('${g.id}')" aria-label="Delete goal">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function deleteGoal(id) { goals = goals.filter(g => g.id != id); saveAll(); renderGoals(); updateStats(); }
+
+    function openGoalModal() {
+      editingType = 'goal';
+      document.getElementById('goalModalTitle').textContent = 'New Goal';
+      document.getElementById('goalTitle').value = '';
+      document.getElementById('goalDesc').value = '';
+      document.getElementById('goalDeadline').value = offsetDays(30);
+      document.getElementById('goalCategory').value = 'Personal';
+      showModal('goalModal');
+    }
+
+    function saveGoal() {
+      const title = document.getElementById('goalTitle').value.trim();
+      if (!title) return;
+      goals.push({
+        id: generateId(), title,
+        desc: document.getElementById('goalDesc').value,
+        deadline: document.getElementById('goalDeadline').value || offsetDays(30),
+        category: document.getElementById('goalCategory').value
+      });
+      saveAll(); closeAllModals(); renderGoals(); updateStats();
+    }
+
+    // ===== NOTES =====
+    function renderNotes() {
+      const list = document.getElementById('noteList');
+      if (notes.length === 0) {
+        list.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><p>No notes yet. Jot something down!</p></div>`;
+        return;
+      }
+      list.innerHTML = notes.map(n => `
+        <div class="list-item" style="align-items:flex-start;">
+          <div class="item-content">
+            <div class="item-title">${n.title}</div>
+            <div style="font-size:0.9rem;color:var(--color-muted-fg);margin-top:4px;white-space:pre-line;">${n.content}</div>
+            <div class="item-meta" style="margin-top:8px;">${formatDate(n.created)}</div>
+          </div>
+          <div class="item-actions" style="opacity:1;">
+            <button onclick="deleteNote('${n.id}')" aria-label="Delete note">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function deleteNote(id) { notes = notes.filter(n => n.id != id); saveAll(); renderNotes(); updateStats(); }
+
+    function openNoteModal() {
+      editingType = 'note';
+      document.getElementById('noteModalTitle').textContent = 'New Note';
+      document.getElementById('noteTitle').value = '';
+      document.getElementById('noteContent').value = '';
+      showModal('noteModal');
+    }
+
+    function saveNote() {
+      const title = document.getElementById('noteTitle').value.trim();
+      if (!title) return;
+      notes.push({
+        id: generateId(), title,
+        content: document.getElementById('noteContent').value,
+        created: todayISO()
+      });
+      saveAll(); closeAllModals(); renderNotes(); updateStats();
+    }
+
+    // ===== MODALS =====
+    function showModal(id) {
+      document.getElementById('modalOverlay').classList.remove('hidden');
+      document.getElementById(id).classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeAllModals() {
+      ['taskModal', 'habitModal', 'goalModal', 'noteModal'].forEach(id => document.getElementById(id).classList.add('hidden'));
+      document.getElementById('modalOverlay').classList.add('hidden');
+      document.body.style.overflow = '';
+      editingId = null; editingType = null;
+    }
+
+    // ===== DAILY PLAN GENERATOR =====
+    function generateDailyPlan() {
+      const today = todayISO();
+      const dayOfWeek = new Date().getDay();
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+      // Collect today's items
+      let planItems = [];
+
+      // Morning habits
+      habits.filter(h => {
+        if (h.freq === 'daily') return true;
+        if (h.freq === 'weekdays') return !isWeekend;
+        if (h.freq === 'weekends') return isWeekend;
+        return false;
+      }).filter(h => h.time === 'morning').forEach(h => {
+        planItems.push({ type: 'habit', title: h.name, desc: 'Daily habit — ' + h.freq, time: 'Morning' });
+      });
+
+      // High priority tasks due today
+      tasks.filter(t => !t.done && t.due <= today && t.priority === 'high').forEach(t => {
+        planItems.push({ type: 'task', title: t.title, desc: `High priority • ${t.duration} min`, time: 'Focus Block' });
+      });
+
+      // Medium priority tasks due today
+      tasks.filter(t => !t.done && t.due <= today && t.priority === 'medium').forEach(t => {
+        planItems.push({ type: 'task', title: t.title, desc: `Medium priority • ${t.duration} min`, time: 'Work Block' });
+      });
+
+      // Low priority tasks
+      tasks.filter(t => !t.done && t.due <= today && t.priority === 'low').forEach(t => {
+        planItems.push({ type: 'task', title: t.title, desc: `Low priority • ${t.duration} min`, time: 'Afternoon' });
+      });
+
+      // Afternoon/evening habits
+      habits.filter(h => {
+        if (h.freq === 'daily') return true;
+        if (h.freq === 'weekdays') return !isWeekend;
+        if (h.freq === 'weekends') return isWeekend;
+        return false;
+      }).filter(h => h.time === 'afternoon' || h.time === 'evening').forEach(h => {
+        planItems.push({ type: 'habit', title: h.name, desc: 'Daily habit — ' + h.freq, time: h.time === 'afternoon' ? 'Afternoon' : 'Evening' });
+      });
+
+      // Goal context
+      if (goals.length > 0) {
+        const topGoal = goals[0];
+        planItems.push({ type: 'goal', title: 'Work toward: ' + topGoal.title, desc: topGoal.desc.substring(0, 80) + (topGoal.desc.length > 80 ? '...' : ''), time: 'Goal Time' });
+      }
+
+      // Breaks
+      if (planItems.length > 3) {
+        planItems.splice(2, 0, { type: 'break', title: 'Short Break', desc: 'Step away, stretch, hydrate', time: 'Recharge' });
+      }
+      if (planItems.length > 6) {
+        planItems.splice(5, 0, { type: 'break', title: 'Lunch Break', desc: 'Fuel up and rest your mind', time: 'Midday' });
+      }
+
+      // Render
+      const timeline = document.getElementById('planTimeline');
+      if (planItems.length === 0) {
+        timeline.innerHTML = '<div class="empty-state"><p>Add tasks, habits and goals to generate your plan!</p></div>';
+      } else {
+        timeline.innerHTML = planItems.map(item => `
+          <div class="plan-slot ${item.type}">
+            <div class="plan-time">${item.time}</div>
+            <div class="plan-title">${item.title}</div>
+            <div class="plan-desc">${item.desc}</div>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('generateArea').classList.add('hidden');
+      document.getElementById('dailyPlanContainer').classList.remove('hidden');
+      showView('dashboard');
+    }
+
+    // ===== EXPORT =====
+    function exportData() {
+      const data = { tasks, habits, goals, notes, exportedAt: new Date().toISOString() };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `dayforge-export-${todayISO()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // ===== INIT =====
+    updateStats();
+    showView('dashboard');
+  </script>
+</body>
+</html>
